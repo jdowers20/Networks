@@ -13,6 +13,9 @@ public class TimeoutWatchdog extends Thread{
 	private InetAddress destIP;
 	private boolean terminate = false;
 	
+	//stats
+	private int totalRetransmittedSegments = 0;
+	
 	public TimeoutWatchdog(long senderStartTime, long startTime, Segment firstSeg, DatagramSocket socket, long timeout, InetAddress dest){
 		this.startSenderTime = senderStartTime;
 		this.startWatchTime = startTime;
@@ -43,6 +46,7 @@ public class TimeoutWatchdog extends Thread{
 			//System.out.println("Tried retransmitting null seg");
 			return;
 		}
+		this.totalRetransmittedSegments++;
 		//System.out.println("ReTrasnmit " + this.watchedSegment.getSeqNumber());
 		this.startWatchTime = System.currentTimeMillis();
 		DatagramPacket reSend = null;
@@ -105,7 +109,7 @@ public class TimeoutWatchdog extends Thread{
 		this.terminate  = true;
 	}
 
-	public void testLog(Segment s) {
-		
+	public int getReTransittedSegments(){
+		return this.totalRetransmittedSegments;
 	}
 }

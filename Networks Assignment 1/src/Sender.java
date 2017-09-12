@@ -29,6 +29,13 @@ public class Sender {
 	private static Random randomNumberGenerator;
 	private long startTime;
 	
+	//statistics
+	private int totalBytesSent = 0;
+	private int totalSegmentsSent = 0;
+	private int totalSegmentsDropped = 0;
+	private int totalSegmentsRetransmitted = 0;
+	private int totalDuplicateAcks = 0;
+	
 	public Sender(String args[]) throws IOException{
 		try {
 			this.receiver_host_ip = InetAddress.getByName(args[0]);
@@ -62,7 +69,7 @@ public class Sender {
 		sender.sendFile(clientSocket);
 		sender.closeConnection(clientSocket);
 		clientSocket.close();
-		
+		sender.appendStatsToLogs();
 		Sender.logger.close();
 	}
 	
@@ -128,6 +135,7 @@ public class Sender {
 			if (!endLoop){
 				numCharsRead = in.read(segData);
 				byte[] segDataAsBytes = new String(segData, 0, numCharsRead).getBytes();
+				this.totalBytesSent += numCharsRead;
 				Segment sendSegment = new Segment(clientSocket.getPort(), this.receiver_port, this.seqNum, replyReceiver.getAckNum());
 				sendSegment.setData(segDataAsBytes);
 				DatagramPacket sendPacket = new DatagramPacket(sendSegment.allDataToBytes(), sendSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
@@ -142,8 +150,11 @@ public class Sender {
 					clientSocket.send(sendPacket);
 				} else {
 					Logger.logSegment("drop", sendSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
+					//pretend to send
+					this.totalSegmentsDropped++;
 				}
 				this.seqNum += sendSegment.getData().length;
+				this.totalSegmentsSent++;
 			}
 			
 			if (numCharsRead < this.mss){
@@ -157,6 +168,10 @@ public class Sender {
 		this.tw.stopRunningThread();
 		this.tw.terminateThread();
 		in.close();
+		
+		//get remaining stats
+		this.totalDuplicateAcks = replyReceiver.getTotalDuplicateAcks();
+		this.totalSegmentsRetransmitted = this.tw.getReTransittedSegments();
 			
 	}
 	
@@ -193,6 +208,30 @@ public class Sender {
 			clientSocket.close();
 			break;
 		}
+	}
+	
+	public void appendStatsToLogs() throws IOException{
+		Sender.logger.write("Total bytes sent: ");
+		Sender.logger.write(Integer.toString(this.totalBytesSent));
+		Sender.logger.write("\n");
+
+		Sender.logger.write("Total Segments sent: ");
+		Sender.logger.write(Integer.toString(this.totalSegmentsSent));
+		Sender.logger.write("\n");
+
+		Sender.logger.write("Total Segments dropped: ");
+		Sender.logger.write(Integer.toString(this.totalSegmentsDropped));
+		Sender.logger.write("\n");
+
+		Sender.logger.write("Total Segments Retransmitted: ");
+		Sender.logger.write(Integer.toString(this.totalSegmentsRetransmitted));
+		Sender.logger.write("\n");
+
+		Sender.logger.write("Total Duplicate Acks: ");
+		Sender.logger.write(Integer.toString(this.totalDuplicateAcks));
+		Sender.logger.write("\n");
+		
+		Sender.logger.flush();
 	}
 	
 	public static int pldModule(){

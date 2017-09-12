@@ -16,6 +16,9 @@ public class SenderThread extends Thread {
 	private int ackNum;
 	private long startTime;
 	
+	//stats
+	private int totalDuplicateAcks = 0;
+	
 	@Override
 	public void run() {
 		try {
@@ -56,11 +59,11 @@ public class SenderThread extends Thread {
 			Segment ackSeg = Segment.byteArrayToSegment(receiveAck.getData());
 			Logger.logSegment("rcv", ackSeg, this.logger, Sender.clientWindow, System.nanoTime() - this.startTime);
 			if (ackSeg.getAckNumber() == previousTracker){
+				this.totalDuplicateAcks++;
 				fastRTCount++;
 				if (fastRTCount == 2){
 					Sender.clientWindow.triggerFastReTransmit(ackSeg.getAckNumber());
 					fastRTCount = 0;
-					previousTracker = 0;
 				}
 			} else {
 				previousTracker = ackSeg.getAckNumber();
@@ -79,6 +82,13 @@ public class SenderThread extends Thread {
 	
 	public int getAckNum(){
 		return this.ackNum;
+	}
+	
+	public int getTotalDuplicateAcks(){
+		if (!this.stopThread){
+			System.out.println("Getting duplicate acks before thread stopped");
+		}
+		return this.totalDuplicateAcks;
 	}
 
 }
