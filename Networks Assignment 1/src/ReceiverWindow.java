@@ -17,6 +17,8 @@ public class ReceiverWindow extends Window {
 				}
 				if (!added.contains(super.window.get(0).getSeqNumber())){
 					receivedFile.write(super.window.get(0).getData());
+					System.out.println("Wrote to file");
+					System.out.print(new String(super.window.get(0).getData()));
 					added.add(super.window.get(0).getSeqNumber());
 				}
 				this.window.remove(super.window.get(0));
