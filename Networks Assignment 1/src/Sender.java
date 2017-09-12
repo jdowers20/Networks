@@ -166,7 +166,7 @@ public class Sender {
 		this.seqNum++;
 		DatagramPacket firstFinPacket = new DatagramPacket(firstFinSegment.allDataToBytes(), firstFinSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 		
-		//clientSocket.setSoTimeout(0);
+		clientSocket.setSoTimeout(0);
 		//System.out.println("HERE2");
 		while (true){
 			clientSocket.send(firstFinPacket);
