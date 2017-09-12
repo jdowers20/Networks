@@ -52,7 +52,7 @@ public class SenderWindow extends Window {
 	}
 	
 	public synchronized void triggerFastReTransmit(int i){
-		System.out.println("Fast Retransmit: " + i + " was doubled up, " + this.window.get(0).getSeqNumber() + " is first in line");
+		//System.out.println("Fast Retransmit: " + i + " was doubled up, " + this.window.get(0).getSeqNumber() + " is first in line");
 		this.tw.fastRetransmit();
 	}
 
