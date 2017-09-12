@@ -172,6 +172,7 @@ public class Sender {
 		//get remaining stats
 		this.totalDuplicateAcks = replyReceiver.getTotalDuplicateAcks();
 		this.totalSegmentsRetransmitted = this.tw.getReTransittedSegments();
+		this.totalSegmentsDropped += this.tw.getDroppedRetransmissions();
 			
 	}
 	

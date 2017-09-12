@@ -15,6 +15,7 @@ public class TimeoutWatchdog extends Thread{
 	
 	//stats
 	private int totalRetransmittedSegments = 0;
+	private int reTransmissionsDropped = 0;
 	
 	public TimeoutWatchdog(long senderStartTime, long startTime, Segment firstSeg, DatagramSocket socket, long timeout, InetAddress dest){
 		this.startSenderTime = senderStartTime;
@@ -64,6 +65,7 @@ public class TimeoutWatchdog extends Thread{
 				Logger.logSegment("snd", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
 				
 			} else {
+				this.reTransmissionsDropped++;
 				Logger.logSegment("drop", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
 			}
 		} catch (IOException e) {
@@ -111,5 +113,9 @@ public class TimeoutWatchdog extends Thread{
 
 	public int getReTransittedSegments(){
 		return this.totalRetransmittedSegments;
+	}
+
+	public int getDroppedRetransmissions(){
+		return this.reTransmissionsDropped;
 	}
 }
