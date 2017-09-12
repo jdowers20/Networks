@@ -150,7 +150,6 @@ public class Sender {
 				endLoop = true;
 			}
 		}
-		System.out.println("HERE");
 		this.ackNum = replyReceiver.getAckNum();
 		replyReceiver.stopThread = true;
 		//clientSocket.disconnect();
@@ -158,6 +157,7 @@ public class Sender {
 		this.tw.stopRunningThread();
 		this.tw.terminateThread();
 		in.close();
+		System.out.println("HERE");
 			
 	}
 	
