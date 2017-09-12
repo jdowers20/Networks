@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Receiver {
@@ -22,6 +23,7 @@ public class Receiver {
 	private long startTime;
 	
 	//statistics
+	private ArrayList<Integer> received = new ArrayList<Integer>();
 	private int totalReceivedBytes = 0;
 	private int totalReceivedSegments = 0;
 	private int totalDuplicateSegments = 0;
@@ -118,6 +120,11 @@ public class Receiver {
 			this.totalReceivedSegments++;
 			
 			Segment receivedSegment = Segment.byteArrayToSegment(receivedPacket.getData());
+			if (!this.received.contains(receivedSegment.getSeqNumber())){
+				this.received.add(receivedSegment.getSeqNumber());
+			} else {
+				this.totalDuplicateSegments++;
+			}
 			
 			Logger.logSegment("rcv", receivedSegment, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
 			if (receivedSegment.isFin()){
@@ -127,8 +134,6 @@ public class Receiver {
 			if (!serverWindow.windowContainsSegment(receivedSegment)){
 				//System.out.println("Added " + receivedSegment.getSeqNumber());
 				this.ackNum = this.serverWindow.addSegment(receivedSegment, this.ackNum, this.receivedFile);
-			} else {
-				this.totalDuplicateSegments++;
 			}
 			Segment returnSegment = new Segment(this.receiver_port, this.senderPort, this.seqNum, this.ackNum);
 			returnSegment.setAck(true);
@@ -140,7 +145,6 @@ public class Receiver {
 		}
 		
 		this.totalReceivedBytes = this.serverWindow.getTotalBytes();
-		this.totalDuplicateSegments += this.serverWindow.getHiddenDuplicates();
 		
 	}
 	

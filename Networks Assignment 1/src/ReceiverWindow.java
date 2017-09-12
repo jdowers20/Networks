@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class ReceiverWindow extends Window {
 	private ArrayList<Integer> added = new ArrayList<Integer>();
 	private int totalReceivedBytes = 0;
-	private int hiddenDuplicates = 0;
 
 	public ReceiverWindow(int mws) {
 		super(mws);
@@ -22,8 +21,6 @@ public class ReceiverWindow extends Window {
 					receivedFile.write(super.window.get(0).getData());
 					receivedFile.flush();
 					added.add(super.window.get(0).getSeqNumber());
-				} else {
-					this.hiddenDuplicates++;
 				}
 				this.window.remove(super.window.get(0));
 			}
@@ -33,10 +30,6 @@ public class ReceiverWindow extends Window {
 	
 	public int getTotalBytes(){
 		return this.totalReceivedBytes;
-	}
-
-	public int getHiddenDuplicates() {
-		return this.hiddenDuplicates ;
 	}
 
 }
