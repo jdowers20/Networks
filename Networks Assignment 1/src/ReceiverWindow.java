@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class ReceiverWindow extends Window {
 	private ArrayList<Integer> added = new ArrayList<Integer>();
+	private int totalReceivedBytes = 0;
+	private int hiddenDuplicates = 0;
 
 	public ReceiverWindow(int mws) {
 		super(mws);
@@ -16,14 +18,25 @@ public class ReceiverWindow extends Window {
 					ackNum += super.window.get(0).getData().length;
 				}
 				if (!added.contains(super.window.get(0).getSeqNumber())){
+					this.totalReceivedBytes += super.window.get(0).getData().length;
 					receivedFile.write(super.window.get(0).getData());
 					receivedFile.flush();
 					added.add(super.window.get(0).getSeqNumber());
+				} else {
+					this.hiddenDuplicates++;
 				}
 				this.window.remove(super.window.get(0));
 			}
 		}
 		return ackNum;
+	}
+	
+	public int getTotalBytes(){
+		return this.totalReceivedBytes;
+	}
+
+	public int getHiddenDuplicates() {
+		return this.hiddenDuplicates ;
 	}
 
 }

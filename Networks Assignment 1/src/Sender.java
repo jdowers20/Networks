@@ -55,8 +55,8 @@ public class Sender {
 		this.startTime = System.nanoTime();
 		
 		Sender.logger = new FileWriter("Sender_log.txt");
-		Sender.logger.write("                 seq   size  ack\n");
-		Sender.logger.flush();
+		//Sender.logger.write("                 seq   size  ack\n");
+		//Sender.logger.flush();
 	}
 	
 	public static void main(String args[]) throws Exception{
@@ -83,6 +83,7 @@ public class Sender {
 		
 		DatagramPacket sendSyn = new DatagramPacket(initialSyn.allDataToBytes(), initialSyn.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 		startupSocket.send(sendSyn);
+		this.totalSegmentsSent++;
 		this.seqNum = clientISN + 1;
 		this.startTime = System.nanoTime();
 		Logger.logSegment("snd", initialSyn, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
@@ -106,6 +107,7 @@ public class Sender {
 				lastAck.setAck(true);
 				DatagramPacket finalAck = new DatagramPacket(lastAck.allDataToBytes(), lastAck.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 				startupSocket.send(finalAck);
+				this.totalSegmentsSent++;
 				Logger.logSegment("snd", lastAck, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
 				this.seqNum++;
 				break;
@@ -186,6 +188,7 @@ public class Sender {
 		//System.out.println("HERE2");
 		while (true){
 			clientSocket.send(firstFinPacket);
+			this.totalSegmentsSent++;
 			Logger.logSegment("snd", firstFinSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
 			
 			DatagramPacket firstReply = new DatagramPacket(new byte[Segment.HEADER_SIZE], Segment.HEADER_SIZE);
@@ -207,6 +210,7 @@ public class Sender {
 			clientSocket.send(new DatagramPacket(finalAck.allDataToBytes(), finalAck.allDataToBytes().length, this.receiver_host_ip, this.receiver_port));
 			Logger.logSegment("snd", finalAck, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
 			clientSocket.close();
+			this.totalSegmentsSent++;
 			break;
 		}
 	}

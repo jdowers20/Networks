@@ -21,6 +21,11 @@ public class Receiver {
 	ReceiverWindow serverWindow;
 	private long startTime;
 	
+	//statistics
+	private int totalReceivedBytes = 0;
+	private int totalReceivedSegments = 0;
+	private int totalDuplicateSegments = 0;
+	
 	public Receiver(String[] args) throws IOException{
 		this.receiver_port = Integer.parseInt(args[0]);
 		this.file = args[1];
@@ -29,8 +34,8 @@ public class Receiver {
 		this.serverWindow = new ReceiverWindow(1024*10);
 		
 		this.logger = new FileWriter("Receiver_log.txt");
-		this.logger.write("                 seq   size  ack\n");
-		this.logger.flush();
+		//this.logger.write("                 seq   size  ack\n");
+		//this.logger.flush();
 	}
 	
 	public static void main(String[] args) throws Exception{
@@ -43,6 +48,7 @@ public class Receiver {
 		receiver.receiveFile(receiverSocket);
 		//Note, we have already received the first fin at this stage
 		receiver.closeConnection(receiverSocket);
+		receiver.logReceiverStats();
 		receiver.logger.close();
 		
 		FileWriter fileOut = new FileWriter(receiver.file);
@@ -60,6 +66,7 @@ public class Receiver {
 			serverSocket.receive(welcomePacket);
 			this.senderAddress = welcomePacket.getAddress();
 			this.senderPort = welcomePacket.getPort();
+			this.totalReceivedSegments++;
 			Segment receivedSegment = Segment.byteArrayToSegment(welcomePacket.getData());
 			this.startTime = System.nanoTime();
 			Logger.logSegment("rcv", receivedSegment, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
@@ -86,6 +93,7 @@ public class Receiver {
 						Logger.logSegment("snd", synAck, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
 						continue;
 					}
+					this.totalReceivedSegments++;
 					Segment ackSeg = Segment.byteArrayToSegment(finalAck.getData());
 					if (ackSeg.isAck()){
 						Logger.logSegment("rcv", ackSeg, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
@@ -107,6 +115,7 @@ public class Receiver {
 		while (true){
 			DatagramPacket receivedPacket = new DatagramPacket(new byte[50000], 50000);
 			receiverSocket.receive(receivedPacket);
+			this.totalReceivedSegments++;
 			
 			Segment receivedSegment = Segment.byteArrayToSegment(receivedPacket.getData());
 			
@@ -118,6 +127,8 @@ public class Receiver {
 			if (!serverWindow.windowContainsSegment(receivedSegment)){
 				//System.out.println("Added " + receivedSegment.getSeqNumber());
 				this.ackNum = this.serverWindow.addSegment(receivedSegment, this.ackNum, this.receivedFile);
+			} else {
+				this.totalDuplicateSegments++;
 			}
 			Segment returnSegment = new Segment(this.receiver_port, this.senderPort, this.seqNum, this.ackNum);
 			returnSegment.setAck(true);
@@ -127,6 +138,10 @@ public class Receiver {
 			receiverSocket.send(returnPacket);
 			Logger.logSegment("snd", returnSegment, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
 		}
+		
+		this.totalReceivedBytes = this.serverWindow.getTotalBytes();
+		this.totalDuplicateSegments += this.serverWindow.getHiddenDuplicates();
+		
 	}
 	
 	private void closeConnection(DatagramSocket receiverSocket) throws IOException {
@@ -147,6 +162,7 @@ public class Receiver {
 			} catch (SocketTimeoutException ex){
 				continue;
 			}
+			this.totalReceivedSegments++;
 			Segment finalAckSeg = Segment.byteArrayToSegment(finalAck.getData());
 			Logger.logSegment("rcv", finalAckSeg, this.logger, this.serverWindow, System.nanoTime() - this.startTime);
 			if (finalAckSeg.isAck()){
@@ -154,6 +170,22 @@ public class Receiver {
 			}
 		}
 		
+	}
+	
+	public void logReceiverStats() throws IOException{
+		this.logger.write("Total Bytes Received: ");
+		this.logger.write(Integer.toString(this.totalReceivedBytes));
+		this.logger.write("\n");
+
+		this.logger.write("Total Segments Received: ");
+		this.logger.write(Integer.toString(this.totalReceivedSegments));
+		this.logger.write("\n");
+
+		this.logger.write("Total Duplicate Segments: ");
+		this.logger.write(Integer.toString(this.totalDuplicateSegments));
+		this.logger.write("\n");
+		
+		this.logger.flush();
 	}
 
 	public String getFile() {
