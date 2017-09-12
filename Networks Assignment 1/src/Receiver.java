@@ -47,6 +47,7 @@ public class Receiver {
 		
 		FileWriter fileOut = new FileWriter(receiver.file);
 		fileOut.write(new String(receiver.receivedFile.toByteArray()));
+		fileOut.flush();
 		fileOut.close();
 		
 	}
