@@ -67,6 +67,11 @@ public class TimeoutWatchdog extends Thread{
 		}
 	}
 	
+	public void fastRetransmit(){
+		System.out.println("Fast re-trasnmit seg " + this.watchedSegment.getSeqNumber());
+		reTransmit();
+	}
+	
 	public Segment getWatchedSegment(){
 		return this.watchedSegment;
 	}
