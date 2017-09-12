@@ -1,6 +1,8 @@
 import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 public class Segment {
@@ -9,7 +11,8 @@ public class Segment {
 	private int seqNumber;
 	private int ackNumber;
 	
-	private int headerLength = 36;
+	public static final int HEADER_SIZE = 36;
+	private int headerLength = HEADER_SIZE;
 	
 	private boolean ack = false;
 	private boolean syn = false;
@@ -38,6 +41,12 @@ public class Segment {
 		int newChecksum = buffer.getInt();
 		
 		byte[] newData = Arrays.copyOfRange(buffer.array(), buffer.position(), buffer.array().length);
+		for (int i = 0; i < newData.length; i++){
+			if (newData[i] == 0){
+				newData = Arrays.copyOfRange(newData, 0, i);
+				break;
+			}
+		}
 		
 		output = new Segment(newSourcePort, newDestPort, newSeqNumber, newAckNumber);
 		output.setHeaderLength(newHeaderLength);
@@ -138,6 +147,9 @@ public class Segment {
 	}
 
 	public byte[] getData() {
+		if (this.data == null){
+			return "".getBytes();
+		}
 		return data;
 	}
 
