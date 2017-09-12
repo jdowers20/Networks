@@ -161,13 +161,13 @@ public class Sender {
 	}
 	
 	public void closeConnection(DatagramSocket clientSocket) throws IOException{
-		System.out.println("HERE");
 		Segment firstFinSegment = new Segment(clientSocket.getPort(), this.receiver_port, this.seqNum, this.ackNum);
 		firstFinSegment.setFin(true);
 		this.seqNum++;
 		DatagramPacket firstFinPacket = new DatagramPacket(firstFinSegment.allDataToBytes(), firstFinSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 		
 		clientSocket.setSoTimeout(0);
+		System.out.println("HERE");
 		while (true){
 			clientSocket.send(firstFinPacket);
 			Logger.logSegment("snd", firstFinSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
