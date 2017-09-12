@@ -58,7 +58,7 @@ public class SenderThread extends Thread {
 			if (ackSeg.getAckNumber() == previousTracker){
 				fastRTCount++;
 				if (fastRTCount == 2){
-					//Sender.clientWindow.triggerFastReTransmit(ackSeg.getAckNumber());
+					Sender.clientWindow.triggerFastReTransmit(ackSeg.getAckNumber());
 					fastRTCount = 0;
 					previousTracker = 0;
 				}
