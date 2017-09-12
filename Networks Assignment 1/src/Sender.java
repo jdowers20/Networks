@@ -118,7 +118,7 @@ public class Sender {
 		//start adding segments to the window to send
 		BufferedReader in = new BufferedReader(new FileReader(this.file));
 		boolean endLoop = false;
-		clientSocket.setSoTimeout(0);
+		//clientSocket.setSoTimeout(0);
 		
 		while (!endLoop || !Sender.clientWindow.isWindowEmpty()){
 			//System.out.println(!endLoop + " || " + !Sender.clientWindow.isWindowEmpty());
@@ -132,10 +132,10 @@ public class Sender {
 				sendSegment.setData(segDataAsBytes);
 				DatagramPacket sendPacket = new DatagramPacket(sendSegment.allDataToBytes(), sendSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 				
-				boolean print = false;
+				//boolean print = false;
 				while (!Sender.clientWindow.addSegment(sendSegment)){
-					if (!print){System.out.println("Waiting/Dropped Seg " + sendSegment.getSeqNumber());}
-					print = true;
+					//if (!print){System.out.println("Waiting/Dropped Seg " + sendSegment.getSeqNumber());}
+					//print = true;
 				}
 				if (Sender.pldModule() == 0){
 					Logger.logSegment("snd", sendSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
@@ -167,7 +167,7 @@ public class Sender {
 		DatagramPacket firstFinPacket = new DatagramPacket(firstFinSegment.allDataToBytes(), firstFinSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 		
 		//clientSocket.setSoTimeout(0);
-		System.out.println("HERE2");
+		//System.out.println("HERE2");
 		while (true){
 			clientSocket.send(firstFinPacket);
 			Logger.logSegment("snd", firstFinSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
