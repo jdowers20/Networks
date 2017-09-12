@@ -167,7 +167,7 @@ public class Sender {
 		DatagramPacket firstFinPacket = new DatagramPacket(firstFinSegment.allDataToBytes(), firstFinSegment.allDataToBytes().length, this.receiver_host_ip, this.receiver_port);
 		
 		clientSocket.setSoTimeout(0);
-		System.out.println("HERE");
+		System.out.println("HERE2");
 		while (true){
 			clientSocket.send(firstFinPacket);
 			Logger.logSegment("snd", firstFinSegment, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
