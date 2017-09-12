@@ -17,7 +17,7 @@ public class SenderWindow extends Window {
 
 		    if (s.getSeqNumber() < ackNum){
 		        iter.remove();
-				System.out.println("Ack "+ ackNum + " - Remove " + s.getSeqNumber() + " AckNum in window " + this.windowContainsSegment(ackNum));
+				//System.out.println("Ack "+ ackNum + " - Remove " + s.getSeqNumber() + " AckNum in window " + this.windowContainsSegment(ackNum));
 		    } else {
 		    	break;
 		    }
@@ -36,7 +36,7 @@ public class SenderWindow extends Window {
 	@Override
 	public synchronized boolean addSegment(Segment segment){
 		boolean added = super.addSegment(segment);
-		System.out.println("Add " + segment.getSeqNumber());
+		//System.out.println("Add " + segment.getSeqNumber());
 		
 		if (this.tw.getWatchedSegment() == null){
 			this.tw.updateWatchedSegment(segment, "s");

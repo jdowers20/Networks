@@ -40,10 +40,10 @@ public class TimeoutWatchdog extends Thread{
 	
 	public void reTransmit(){
 		if (this.watchedSegment == null){
-			System.out.println("Tried retransmitting null seg");
+			//System.out.println("Tried retransmitting null seg");
 			return;
 		}
-		System.out.println("ReTrasnmit " + this.watchedSegment.getSeqNumber());
+		//System.out.println("ReTrasnmit " + this.watchedSegment.getSeqNumber());
 		this.startWatchTime = System.currentTimeMillis();
 		DatagramPacket reSend = null;
 		try {
@@ -57,10 +57,10 @@ public class TimeoutWatchdog extends Thread{
 		try {
 			if (Sender.pldModule() == 0){
 				this.reTransmitSocket.send(reSend);
-				Logger.logSegment("snt", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
+				Logger.logSegment("snd", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
 				
 			} else {
-				Logger.logSegment("dtop", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
+				Logger.logSegment("drop", watchedSegment, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
 			}
 		} catch (IOException e) {
 				
@@ -73,25 +73,25 @@ public class TimeoutWatchdog extends Thread{
 	
 	public void updateWatchedSegment(Segment s, String string){
 		if (this.watchedSegment != null && s!= null && this.watchedSegment.getSeqNumber() == s.getSeqNumber()){
-			System.out.println("Ignore duplicate update of " + s.getSeqNumber());
+			//System.out.println("Ignore duplicate update of " + s.getSeqNumber());
 			return;
 		}
 		this.watchedSegment = s;
 		this.startWatchTime = System.currentTimeMillis();
 		if (s!=null){
-			System.out.println(string + " Updating watched seg to " + s.getSeqNumber() + "(" + (System.currentTimeMillis() - this.startWatchTime) + ")");
+			//System.out.println(string + " Updating watched seg to " + s.getSeqNumber() + "(" + (System.currentTimeMillis() - this.startWatchTime) + ")");
 		} else {
-			System.out.println(string + " Updating to watch null val");
+			//System.out.println(string + " Updating to watch null val");
 		}
 	}
 	
 	public void stopRunningThread(){
-		System.out.println("stop");
+		//System.out.println("stop");
 		this.stopThread = true;
 	}
 	
 	public void startRunningThread(){
-		System.out.println("start");
+		//System.out.println("start");
 		this.startWatchTime = System.currentTimeMillis();
 		this.stopThread = false;
 	}
@@ -101,12 +101,6 @@ public class TimeoutWatchdog extends Thread{
 	}
 
 	public void testLog(Segment s) {
-		try {
-			Logger.logSegment("tst", s, Sender.logger, Sender.clientWindow, System.nanoTime() - this.startSenderTime);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 	}
 }

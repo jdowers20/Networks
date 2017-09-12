@@ -39,7 +39,7 @@ public class SenderThread extends Thread {
 		int fastRTCount = 0;
 		this.clientSocket.setSoTimeout(1);
 		while (!this.stopThread){
-			System.out.println("thread");
+			//System.out.println("thread");
 			DatagramPacket receiveAck = new DatagramPacket(new byte[Segment.HEADER_SIZE], Segment.HEADER_SIZE);
 			//this.clientSocket.setSoTimeout(0);
 			
