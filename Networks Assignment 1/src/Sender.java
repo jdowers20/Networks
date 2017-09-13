@@ -95,6 +95,7 @@ public class Sender {
 				startupSocket.receive(getSynAck);
 			} catch (SocketTimeoutException ex){
 				startupSocket.send(sendSyn);
+				this.totalSegmentsSent++;
 				Logger.logSegment("snd", initialSyn, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
 				continue;
 			}

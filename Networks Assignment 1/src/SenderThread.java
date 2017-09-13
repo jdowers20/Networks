@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
 public class SenderThread extends Thread {
@@ -18,6 +19,7 @@ public class SenderThread extends Thread {
 	
 	//stats
 	private int totalDuplicateAcks = 0;
+	private ArrayList<Integer> acks = new ArrayList<Integer>();
 	
 	@Override
 	public void run() {
@@ -57,9 +59,15 @@ public class SenderThread extends Thread {
 			}
 			
 			Segment ackSeg = Segment.byteArrayToSegment(receiveAck.getData());
+			
+			if (!this.acks.contains(ackSeg.getSeqNumber())){
+				this.acks.add(ackSeg.getSeqNumber());
+			} else {
+				this.totalDuplicateAcks++;
+			}
+				
 			Logger.logSegment("rcv", ackSeg, this.logger, Sender.clientWindow, System.nanoTime() - this.startTime);
 			if (ackSeg.getAckNumber() == previousTracker){
-				this.totalDuplicateAcks++;
 				fastRTCount++;
 				if (fastRTCount == 2){
 					Sender.clientWindow.triggerFastReTransmit(ackSeg.getAckNumber());

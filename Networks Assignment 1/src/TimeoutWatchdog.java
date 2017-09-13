@@ -47,7 +47,6 @@ public class TimeoutWatchdog extends Thread{
 			//System.out.println("Tried retransmitting null seg");
 			return;
 		}
-		this.totalRetransmittedSegments++;
 		//System.out.println("ReTrasnmit " + this.watchedSegment.getSeqNumber());
 		this.startWatchTime = System.currentTimeMillis();
 		DatagramPacket reSend = null;
@@ -71,6 +70,7 @@ public class TimeoutWatchdog extends Thread{
 		} catch (IOException e) {
 				
 		}
+		this.totalRetransmittedSegments++;
 	}
 	
 	public void fastRetransmit(){
