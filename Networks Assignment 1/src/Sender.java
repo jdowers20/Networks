@@ -205,7 +205,7 @@ public class Sender {
 			this.ackNum++;
 			if (this.receivedAcks.contains(firstReplySeg.getAckNumber())){
 				this.totalDuplicateAcks++;
-			}else {
+			} else {
 				this.receivedAcks.add(firstReplySeg.getAckNumber());
 			}
 			
