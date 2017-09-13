@@ -62,9 +62,9 @@ public class SenderThread extends Thread {
 			
 			if (!this.acks.contains(ackSeg.getSeqNumber())){
 				this.acks.add(ackSeg.getSeqNumber());
+				System.out.println("Ack " + ackSeg.getSeqNumber());
 			} else {
 				this.totalDuplicateAcks++;
-				System.out.println("Duplicate " + ackSeg.getSeqNumber());
 			}
 				
 			Logger.logSegment("rcv", ackSeg, this.logger, Sender.clientWindow, System.nanoTime() - this.startTime);
