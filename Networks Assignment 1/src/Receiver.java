@@ -149,11 +149,11 @@ public class Receiver {
 	}
 	
 	private void closeConnection(DatagramSocket receiverSocket) throws IOException {
+		this.ackNum++;
 		Segment finAck = new Segment(receiverSocket.getPort(), this.senderPort, this.seqNum, this.ackNum);
 		finAck.setAck(true);
 		finAck.setFin(true);
 		this.seqNum++;
-		this.ackNum++;
 		
 		receiverSocket.setSoTimeout(100);
 		while (true){

@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Sender {
@@ -35,6 +36,7 @@ public class Sender {
 	private int totalSegmentsDropped = 0;
 	private int totalSegmentsRetransmitted = 0;
 	private int totalDuplicateAcks = 0;
+	private ArrayList<Integer> receivedAcks;
 	
 	public Sender(String args[]) throws IOException{
 		try {
@@ -176,7 +178,7 @@ public class Sender {
 		this.totalDuplicateAcks = replyReceiver.getTotalDuplicateAcks();
 		this.totalSegmentsRetransmitted = this.tw.getReTransittedSegments();
 		this.totalSegmentsDropped += this.tw.getDroppedRetransmissions();
-			
+		this.receivedAcks = replyReceiver.getAckArray();
 	}
 	
 	public void closeConnection(DatagramSocket clientSocket) throws IOException{
@@ -201,6 +203,11 @@ public class Sender {
 			Segment firstReplySeg = Segment.byteArrayToSegment(firstReply.getData());
 			Logger.logSegment("rcv", firstReplySeg, Sender.logger, Sender.clientWindow, (System.nanoTime() - this.startTime));
 			this.ackNum++;
+			if (this.receivedAcks.contains(firstReplySeg.getAckNumber())){
+				this.totalDuplicateAcks++;
+			}else {
+				this.receivedAcks.add(firstReplySeg.getAckNumber());
+			}
 			
 			if ( !(firstReplySeg.isFin() && firstReplySeg.isAck()) ){
 				continue;

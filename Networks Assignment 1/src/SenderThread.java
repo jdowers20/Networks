@@ -60,9 +60,8 @@ public class SenderThread extends Thread {
 			
 			Segment ackSeg = Segment.byteArrayToSegment(receiveAck.getData());
 			
-			if (!this.acks.contains(ackSeg.getSeqNumber())){
-				this.acks.add(ackSeg.getSeqNumber());
-				System.out.println("Ack " + ackSeg.getSeqNumber());
+			if (!this.acks.contains(ackSeg.getAckNumber())){
+				this.acks.add(ackSeg.getAckNumber());
 			} else {
 				this.totalDuplicateAcks++;
 			}
@@ -98,6 +97,10 @@ public class SenderThread extends Thread {
 			System.out.println("Getting duplicate acks before thread stopped");
 		}
 		return this.totalDuplicateAcks;
+	}
+	
+	public ArrayList<Integer> getAckArray(){
+		return this.acks;
 	}
 
 }
