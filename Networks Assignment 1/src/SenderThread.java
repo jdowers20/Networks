@@ -79,7 +79,7 @@ public class SenderThread extends Thread {
 			}
 			
 			
-			if (ackSeg.isAck()){
+			if (ackSeg.isAck() && ackSeg.runCheckSum()){
 				this.ackNum = ackSeg.getSeqNumber() + 1;
 				Sender.clientWindow.acknowledge(ackSeg.getAckNumber());
 			}

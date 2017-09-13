@@ -130,6 +130,9 @@ public class Receiver {
 			if (receivedSegment.isFin()){
 				break;
 			}
+			if (!receivedSegment.runCheckSum()){
+				continue;
+			}
 			
 			if (!serverWindow.windowContainsSegment(receivedSegment)){
 				//System.out.println("Added " + receivedSegment.getSeqNumber());

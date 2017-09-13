@@ -40,6 +40,7 @@ public class Segment {
 		
 		int newChecksum = buffer.getInt();
 		
+		
 		byte[] newData = Arrays.copyOfRange(buffer.array(), buffer.position(), buffer.array().length);
 		for (int i = 0; i < newData.length; i++){
 			if (newData[i] == 0){
@@ -57,6 +58,28 @@ public class Segment {
 		output.setData(newData);
 		
 		return output;
+	}
+	
+	public boolean runCheckSum(){
+		int calculatedCheckSum = this.calculateCheckSum();
+		if (!(calculatedCheckSum == this.checksum)){
+			System.out.println("Failed CheckSum");
+		}
+		
+		return (calculatedCheckSum == this.checksum);
+	}
+	
+	public int calculateCheckSum(){
+		int sum = this.sourcePort;
+		sum += this.destPort;
+		sum += this.seqNumber;
+		sum += this.ackNumber;
+		sum += this.headerLength;
+		sum += boolToInt(this.ack);
+		sum += boolToInt(this.syn);
+		sum += boolToInt(this.fin);
+		
+		return ~sum;
 	}
 	
 	public Segment(int sourcePort, int destPort, int seqNumber, int ackNumber){
@@ -79,6 +102,7 @@ public class Segment {
 		convert.write(ByteBuffer.allocate(4).putInt(boolToInt(this.syn)).array());
 		convert.write(ByteBuffer.allocate(4).putInt(boolToInt(this.fin)).array());
 
+		this.checksum = this.calculateCheckSum();
 		convert.write(ByteBuffer.allocate(4).putInt(checksum).array());
 		
 		if (this.data != null){
